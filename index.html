@@ -4,11 +4,25 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>조세원 | CEO · HOFN</title>
+
+  <!-- Tailwind -->
   <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- React 18 UMD -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+
+  <!-- Babel (JSX transform) -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Inter:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+
   <style>
     :root { --gold: #C9A84C; --gold-light: #EDD98A; }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; }
     html { scroll-behavior: smooth; }
     body {
       background: #080808;
@@ -17,124 +31,205 @@
       -webkit-font-smoothing: antialiased;
       overflow-x: hidden;
     }
-    ::selection { background: rgba(201,168,76,0.3); }
-    ::-webkit-scrollbar { width: 2px; }
+    ::selection { background: rgba(201,168,76,.3); }
+    ::-webkit-scrollbar { width: 3px; }
     ::-webkit-scrollbar-track { background: #111; }
-    ::-webkit-scrollbar-thumb { background: var(--gold); }
+    ::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 2px; }
 
+    /* ── Gold text ── */
     .gold-text {
       background: linear-gradient(135deg, #C9A84C 0%, #EDD98A 50%, #C9A84C 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
     }
-    .section-divider {
+
+    /* ── Divider ── */
+    .divider {
       height: 1px;
-      background: linear-gradient(to right, transparent, rgba(201,168,76,0.4), transparent);
+      background: linear-gradient(to right, transparent, rgba(201,168,76,.35), transparent);
     }
+
+    /* ── Section fade-in animation ── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(48px);
+      transition: opacity .9s cubic-bezier(.22,1,.36,1), transform .9s cubic-bezier(.22,1,.36,1);
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    .reveal-left {
+      opacity: 0;
+      transform: translateX(-48px);
+      transition: opacity .8s cubic-bezier(.22,1,.36,1), transform .8s cubic-bezier(.22,1,.36,1);
+    }
+    .reveal-left.visible { opacity: 1; transform: translateX(0); }
+
+    .reveal-right {
+      opacity: 0;
+      transform: translateX(48px);
+      transition: opacity .8s cubic-bezier(.22,1,.36,1), transform .8s cubic-bezier(.22,1,.36,1);
+    }
+    .reveal-right.visible { opacity: 1; transform: translateX(0); }
+
+    /* ── Hero background ── */
     .hero-bg {
       background:
-        radial-gradient(ellipse 80% 60% at 50% 0%, rgba(201,168,76,0.08) 0%, transparent 70%),
-        radial-gradient(ellipse 40% 40% at 80% 80%, rgba(201,168,76,0.05) 0%, transparent 60%),
+        radial-gradient(ellipse 80% 55% at 50% 0%, rgba(201,168,76,.09) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 35% at 85% 80%, rgba(201,168,76,.05) 0%, transparent 60%),
         #080808;
     }
-    .card-border {
-      border: 1px solid rgba(255,255,255,0.07);
-      background: rgba(255,255,255,0.02);
-      backdrop-filter: blur(12px);
+
+    /* ── Rings ── */
+    .ring {
+      border: 1px solid rgba(201,168,76,.18);
+      border-radius: 50%;
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      animation: ring-pulse 4s ease-in-out infinite;
     }
-    .card-border:hover {
-      border-color: rgba(201,168,76,0.3);
-      background: rgba(201,168,76,0.04);
-      transition: all 0.4s ease;
+    @keyframes ring-pulse {
+      0%,100% { opacity: .15; }
+      50%      { opacity: .4; }
     }
-    .nav-blur {
-      background: rgba(8,8,8,0.7);
+
+    /* ── Scroll arrow ── */
+    .scroll-arrow {
+      animation: arrow-bounce 2s ease-in-out infinite;
+    }
+    @keyframes arrow-bounce {
+      0%,100% { transform: translateY(0); }
+      50%      { transform: translateY(10px); }
+    }
+
+    /* ── Nav blur ── */
+    .nav-glass {
+      background: rgba(8,8,8,.75);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
-      border-bottom: 1px solid rgba(255,255,255,0.06);
+      border-bottom: 1px solid rgba(255,255,255,.06);
     }
-    .timeline-dot {
-      width: 10px; height: 10px;
-      border-radius: 50%;
-      background: var(--gold);
-      box-shadow: 0 0 12px rgba(201,168,76,0.6);
+
+    /* ── Cards ── */
+    .glass-card {
+      border: 1px solid rgba(255,255,255,.07);
+      background: rgba(255,255,255,.02);
+      border-radius: 16px;
+      transition: border-color .35s, background .35s;
     }
-    .competency-card {
-      border: 1px solid rgba(201,168,76,0.15);
-      background: linear-gradient(135deg, rgba(201,168,76,0.05), rgba(255,255,255,0.02));
-      transition: all 0.35s ease;
+    .glass-card:hover {
+      border-color: rgba(201,168,76,.3);
+      background: rgba(201,168,76,.04);
     }
-    .competency-card:hover {
-      border-color: rgba(201,168,76,0.5);
-      background: linear-gradient(135deg, rgba(201,168,76,0.1), rgba(255,255,255,0.04));
-      transform: translateY(-4px);
-      box-shadow: 0 20px 40px rgba(0,0,0,0.4), 0 0 20px rgba(201,168,76,0.1);
+
+    .core-card {
+      border: 1px solid rgba(201,168,76,.15);
+      background: linear-gradient(135deg, rgba(201,168,76,.05), rgba(255,255,255,.02));
+      border-radius: 16px;
+      transition: all .35s;
     }
+    .core-card:hover {
+      border-color: rgba(201,168,76,.5);
+      background: linear-gradient(135deg, rgba(201,168,76,.1), rgba(255,255,255,.04));
+      transform: translateY(-6px);
+      box-shadow: 0 24px 48px rgba(0,0,0,.4), 0 0 24px rgba(201,168,76,.1);
+    }
+
     .portfolio-card {
-      border: 1px solid rgba(255,255,255,0.06);
-      background: rgba(255,255,255,0.015);
-      transition: all 0.4s ease;
+      border: 1px solid rgba(255,255,255,.06);
+      background: rgba(255,255,255,.015);
+      border-radius: 20px;
       overflow: hidden;
       position: relative;
+      transition: all .4s;
     }
     .portfolio-card::before {
       content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(135deg, rgba(201,168,76,0.06) 0%, transparent 60%);
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(201,168,76,.06) 0%, transparent 55%);
       opacity: 0;
-      transition: opacity 0.4s ease;
+      transition: opacity .4s;
     }
     .portfolio-card:hover::before { opacity: 1; }
     .portfolio-card:hover {
-      border-color: rgba(201,168,76,0.25);
-      transform: translateY(-6px);
-      box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+      border-color: rgba(201,168,76,.25);
+      transform: translateY(-8px);
+      box-shadow: 0 32px 64px rgba(0,0,0,.5);
     }
-    .globe-ring {
-      border: 1px solid rgba(201,168,76,0.2);
+
+    /* ── Timeline dot ── */
+    .t-dot {
+      width: 10px; height: 10px;
       border-radius: 50%;
-      position: absolute;
-      animation: pulse-ring 3s ease-in-out infinite;
+      background: var(--gold);
+      box-shadow: 0 0 14px rgba(201,168,76,.7);
+      flex-shrink: 0;
     }
-    @keyframes pulse-ring {
-      0%, 100% { opacity: 0.2; transform: scale(1); }
-      50% { opacity: 0.5; transform: scale(1.02); }
+
+    /* ── Tag ── */
+    .gold-tag {
+      font-size: .65rem;
+      letter-spacing: .25em;
+      text-transform: uppercase;
+      color: var(--gold);
+      border: 1px solid rgba(201,168,76,.3);
+      padding: .25rem .75rem;
+      border-radius: 99px;
     }
-    .scroll-indicator {
-      animation: bounce 2s ease-in-out infinite;
+
+    /* ── Market tag hover ── */
+    .market-tag {
+      font-size: .85rem;
+      font-weight: 300;
+      color: rgba(255,255,255,.55);
+      border: 1px solid rgba(201,168,76,.22);
+      padding: .6rem 1.5rem;
+      border-radius: 99px;
+      transition: all .3s;
+      cursor: default;
     }
-    @keyframes bounce {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(8px); }
+    .market-tag:hover {
+      color: #fff;
+      border-color: rgba(201,168,76,.65);
+      background: rgba(201,168,76,.06);
     }
-    @media (max-width: 768px) {
-      .hide-mobile { display: none; }
+
+    /* ── Fade-in hero ── */
+    @keyframes fade-up {
+      from { opacity: 0; transform: translateY(30px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .hero-anim-1 { animation: fade-up .9s cubic-bezier(.22,1,.36,1) .3s both; }
+    .hero-anim-2 { animation: fade-up 1s  cubic-bezier(.22,1,.36,1) .55s both; }
+    .hero-anim-3 { animation: fade-up .9s cubic-bezier(.22,1,.36,1) .85s both; }
+    .hero-anim-4 { animation: fade-up .9s cubic-bezier(.22,1,.36,1) 1.1s both; }
+    .hero-anim-5 { animation: fade-up .8s cubic-bezier(.22,1,.36,1) 1.5s both; }
+
+    @keyframes nav-in {
+      from { opacity: 0; transform: translateY(-20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .nav-anim { animation: nav-in .8s cubic-bezier(.22,1,.36,1) .2s both; }
+
+    /* ── Responsive ── */
+    @media (max-width: 767px) {
+      .hide-md { display: none; }
     }
   </style>
 </head>
 <body>
   <div id="root"></div>
 
-  <script type="module">
-    import React, { useState, useEffect, useRef } from 'https://esm.sh/react@18'
-    import { createRoot } from 'https://esm.sh/react-dom@18/client'
-    import {
-      motion, AnimatePresence,
-      useInView, useScroll, useTransform
-    } from 'https://esm.sh/framer-motion@11'
-    import htm from 'https://esm.sh/htm@3'
+  <script type="text/babel">
+    const { useState, useEffect, useRef, useCallback } = React;
 
-    const html = htm.bind(React.createElement)
-
-    /* ─── Data ─────────────────────────────────────────────── */
+    /* ─── Data ───────────────────────────────────────────── */
     const DATA = {
       hero: {
         name: "조세원",
-        title: "CEO",
-        company: "파인핸스",
         brand: "HOFN",
+        company: "파인핸스",
         vision: "AI 기반 개인 맞춤형 스킨케어 플랫폼 및\n스마트 뷰티 디바이스를 통한 글로벌 뷰티 테크 선도"
       },
       profile: {
@@ -142,565 +237,438 @@
         education: ["단국대학교 영어학과", "Radisson Hotel 미국 인턴십"]
       },
       career: [
-        { year: "2013", company: "제이비알", role: "대표이사", desc: "IT / SW / HW 사업 기반 구축" },
-        { year: "2015", company: "제이비알아이엔티", role: "대표이사", desc: "국내외 유통 네트워크 확장" },
-        { year: "2018", company: "제이와이앤인터내셔널", role: "대표이사", desc: "글로벌 비즈니스 플랫폼 개발" },
-        { year: "2019", company: "룩스앤메이코스메틱", role: "글로벌 본부장", desc: "화장품 글로벌 유통 총괄" },
-        { year: "2024", company: "파인핸스", role: "대표이사", desc: "AI 뷰티 테크 스타트업 창업" }
+        { year: "2013", company: "제이비알",            role: "대표이사",     desc: "IT / SW / HW 사업 기반 구축" },
+        { year: "2015", company: "제이비알아이엔티",    role: "대표이사",     desc: "국내외 유통 네트워크 확장" },
+        { year: "2018", company: "제이와이앤인터내셔널", role: "대표이사",    desc: "글로벌 비즈니스 플랫폼 개발" },
+        { year: "2019", company: "룩스앤메이코스메틱",  role: "글로벌 본부장", desc: "K-뷰티 해외 유통 총괄" },
+        { year: "2024", company: "파인핸스",            role: "대표이사",     desc: "AI 뷰티 테크 스타트업 창업" }
       ],
       core: [
-        { label: "IT · SW · HW", icon: "⬡", desc: "통합 기술 사업 운영" },
-        { label: "뷰티 & 코스메틱", icon: "⬡", desc: "화장품 산업 심층 경험" },
-        { label: "EV 충전 인프라", icon: "⬡", desc: "전기차 충전 인프라 사업" },
-        { label: "글로벌 유통", icon: "⬡", desc: "해외 유통 네트워크" },
-        { label: "시장 확장", icon: "⬡", desc: "신시장 개척 성과" },
-        { label: "플랫폼 사업화", icon: "⬡", desc: "디지털 플랫폼 구축" }
+        { num: "01", label: "IT · SW · HW",  desc: "통합 기술 사업 운영" },
+        { num: "02", label: "뷰티 & 코스메틱", desc: "화장품 산업 심층 경험" },
+        { num: "03", label: "EV 충전 인프라", desc: "전기차 충전 인프라 사업" },
+        { num: "04", label: "글로벌 유통",    desc: "해외 유통 네트워크" },
+        { num: "05", label: "시장 확장",      desc: "신시장 개척 성과" },
+        { num: "06", label: "플랫폼 사업화",  desc: "디지털 플랫폼 구축" }
       ],
       portfolio: [
-        {
-          company: "제이비알 / 제이비알아이엔티",
-          period: "2013 — 2017",
-          category: "IT · 유통",
-          summary: "IT, SW, HW 기반 사업 운영 및 국내외 유통 네트워크 확립. 초기 시장 진입 전략 수립 및 성장 견인."
-        },
-        {
-          company: "제이와이앤인터내셔널",
-          period: "2018 — 2019",
-          category: "글로벌 비즈니스",
-          summary: "글로벌 비즈니스 플랫폼 개발 및 해외 파트너십 구축. 다국적 시장 확장 전략 실행."
-        },
-        {
-          company: "룩스앤메이코스메틱",
-          period: "2019 — 2023",
-          category: "뷰티 · 글로벌",
-          summary: "뷰티 산업 글로벌 본부 총괄. K-뷰티 해외 유통 전략 기획 및 브랜드 글로벌화 리드."
-        },
-        {
-          company: "파인핸스 · HOFN",
-          period: "2024 — Present",
-          category: "AI · 뷰티 테크",
-          summary: "AI 맞춤형 스킨케어 플랫폼과 스마트 뷰티 디바이스 개발. 글로벌 뷰티 테크 시장 선도."
-        }
+        { company: "제이비알 · 제이비알아이엔티", period: "2013 — 2017", cat: "IT · 유통",
+          desc: "IT, SW, HW 기반 사업 운영 및 국내외 유통 네트워크 확립. 초기 시장 진입 전략 수립 및 성장 견인." },
+        { company: "제이와이앤인터내셔널", period: "2018 — 2019", cat: "글로벌 비즈니스",
+          desc: "글로벌 비즈니스 플랫폼 개발 및 해외 파트너십 구축. 다국적 시장 확장 전략 실행." },
+        { company: "룩스앤메이코스메틱", period: "2019 — 2023", cat: "뷰티 · 글로벌",
+          desc: "뷰티 산업 글로벌 본부 총괄. K-뷰티 해외 유통 전략 기획 및 브랜드 글로벌화 리드." },
+        { company: "파인핸스 · HOFN", period: "2024 — Present", cat: "AI · 뷰티 테크",
+          desc: "AI 맞춤형 스킨케어 플랫폼과 스마트 뷰티 디바이스 개발. 글로벌 뷰티 테크 시장 선도." }
       ],
-      global: {
-        markets: ["한국", "미국", "일본", "중국", "동남아시아", "유럽"],
-        vision: "HOFN은 AI와 스마트 디바이스의 결합으로 국경 없는 개인 맞춤형 뷰티 경험을 전 세계에 제공합니다."
-      }
-    }
+      markets: ["한국", "미국", "일본", "중국", "동남아시아", "유럽"]
+    };
 
-    /* ─── Hooks ─────────────────────────────────────────────── */
-    function useScrolled(threshold = 50) {
-      const [scrolled, setScrolled] = useState(false)
+    /* ─── Hooks ──────────────────────────────────────────── */
+    function useScrolled(threshold = 60) {
+      const [scrolled, setScrolled] = useState(false);
       useEffect(() => {
-        const fn = () => setScrolled(window.scrollY > threshold)
-        window.addEventListener('scroll', fn, { passive: true })
-        return () => window.removeEventListener('scroll', fn)
-      }, [threshold])
-      return scrolled
+        const fn = () => setScrolled(window.scrollY > threshold);
+        window.addEventListener('scroll', fn, { passive: true });
+        return () => window.removeEventListener('scroll', fn);
+      }, [threshold]);
+      return scrolled;
     }
 
-    /* ─── Shared Components ─────────────────────────────────── */
-    function FadeSection({ children, delay = 0, className = '' }) {
-      const ref = useRef(null)
-      const inView = useInView(ref, { once: true, margin: '-80px' })
-      return html`
-        <${motion.div}
-          ref=${ref}
-          className=${className}
-          initial=${{ opacity: 0, y: 50 }}
-          animate=${inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
-          transition=${{ duration: 0.9, delay, ease: [0.22, 1, 0.36, 1] }}
-        >
-          ${children}
-        </>
-      `
+    // Attach IntersectionObserver to a ref; adds 'visible' class
+    function useReveal(delay = 0) {
+      const ref = useRef(null);
+      useEffect(() => {
+        const el = ref.current;
+        if (!el) return;
+        el.style.transitionDelay = `${delay}s`;
+        const obs = new IntersectionObserver(
+          ([entry]) => { if (entry.isIntersecting) { el.classList.add('visible'); obs.disconnect(); } },
+          { threshold: 0.12, rootMargin: '-60px' }
+        );
+        obs.observe(el);
+        return () => obs.disconnect();
+      }, [delay]);
+      return ref;
     }
 
-    function SectionLabel({ children }) {
-      return html`
-        <${motion.p}
-          className="text-xs tracking-[0.35em] uppercase mb-4"
-          style=${{ color: 'var(--gold)' }}
-        >
-          ${children}
-        </>
-      `
-    }
+    /* ─── Shared ─────────────────────────────────────────── */
+    const SectionLabel = ({ children }) => (
+      <p style={{ color: 'var(--gold)', letterSpacing: '.35em', fontSize: '.7rem' }}
+         className="uppercase mb-4 font-light">
+        {children}
+      </p>
+    );
 
-    /* ─── Nav ───────────────────────────────────────────────── */
+    /* ─── Nav ────────────────────────────────────────────── */
     function Nav() {
-      const scrolled = useScrolled()
-      const [menuOpen, setMenuOpen] = useState(false)
-      const links = ['about', 'career', 'core', 'portfolio', 'global']
+      const scrolled = useScrolled();
+      const [open, setOpen] = useState(false);
+      const links = ['about','career','core','portfolio','global'];
+      return (
+        <>
+          <nav className={`nav-anim fixed top-0 left-0 right-0 z-50 px-6 md:px-12 py-5 flex justify-between items-center transition-all duration-500 ${scrolled ? 'nav-glass' : ''}`}>
+            <a href="#hero" className="gold-text font-light" style={{ letterSpacing: '.5em', fontSize: '.8rem' }}>HOFN</a>
+            <div className="hide-md flex gap-10">
+              {links.map(l => (
+                <a key={l} href={`#${l}`}
+                   className="text-white/40 hover:text-white transition-colors duration-300"
+                   style={{ fontSize: '.7rem', letterSpacing: '.25em', textTransform: 'uppercase' }}>
+                  {l}
+                </a>
+              ))}
+            </div>
+            <button className="md:hidden text-white/60 hover:text-white" onClick={() => setOpen(v => !v)}>
+              <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                {open
+                  ? <path d="M4 4l14 14M18 4L4 18" stroke="currentColor" strokeWidth="1.5"/>
+                  : <>
+                      <line x1="3" y1="6"  x2="19" y2="6"  stroke="currentColor" strokeWidth="1.5"/>
+                      <line x1="3" y1="11" x2="19" y2="11" stroke="currentColor" strokeWidth="1.5"/>
+                      <line x1="3" y1="16" x2="19" y2="16" stroke="currentColor" strokeWidth="1.5"/>
+                    </>
+                }
+              </svg>
+            </button>
+          </nav>
 
-      return html`
-        <${motion.nav}
-          className=${`fixed top-0 left-0 right-0 z-50 px-6 md:px-12 py-5 flex justify-between items-center transition-all duration-500 ${scrolled ? 'nav-blur' : ''}`}
-          initial=${{ y: -60, opacity: 0 }}
-          animate=${{ y: 0, opacity: 1 }}
-          transition=${{ duration: 0.8, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-        >
-          <a href="#hero" className="gold-text font-light tracking-[0.5em] text-sm font-['Inter']">
-            HOFN
-          </a>
-
-          <div className="hide-mobile flex items-center gap-10">
-            ${links.map(l => html`
-              <a
-                key=${l}
-                href=${`#${l}`}
-                className="text-white/50 hover:text-white text-xs tracking-[0.25em] uppercase transition-colors duration-300"
-              >
-                ${l}
-              </a>
-            `)}
-          </div>
-
-          <button
-            className="md:hidden text-white/60 hover:text-white"
-            onClick=${() => setMenuOpen(v => !v)}
-          >
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-              ${menuOpen
-                ? html`<path d="M4 4l12 12M16 4L4 16" stroke="currentColor" strokeWidth="1.5"/>`
-                : html`<>
-                    <line x1="3" y1="6" x2="17" y2="6" stroke="currentColor" strokeWidth="1.5"/>
-                    <line x1="3" y1="10" x2="17" y2="10" stroke="currentColor" strokeWidth="1.5"/>
-                    <line x1="3" y1="14" x2="17" y2="14" stroke="currentColor" strokeWidth="1.5"/>
-                  </>`
-              }
-            </svg>
-          </button>
+          {open && (
+            <div className="nav-glass fixed inset-0 z-40 flex flex-col justify-center items-center gap-10">
+              {links.map(l => (
+                <a key={l} href={`#${l}`} onClick={() => setOpen(false)}
+                   className="text-white text-2xl tracking-widest uppercase font-light">
+                  {l}
+                </a>
+              ))}
+            </div>
+          )}
         </>
-
-        <${AnimatePresence}>
-          ${menuOpen && html`
-            <${motion.div}
-              className="fixed inset-0 z-40 flex flex-col justify-center items-center gap-10 nav-blur"
-              initial=${{ opacity: 0 }}
-              animate=${{ opacity: 1 }}
-              exit=${{ opacity: 0 }}
-              transition=${{ duration: 0.3 }}
-            >
-              ${links.map((l, i) => html`
-                <${motion.a}
-                  key=${l}
-                  href=${`#${l}`}
-                  className="text-white text-2xl tracking-widest uppercase"
-                  initial=${{ opacity: 0, y: 20 }}
-                  animate=${{ opacity: 1, y: 0 }}
-                  transition=${{ delay: i * 0.08 }}
-                  onClick=${() => setMenuOpen(false)}
-                >
-                  ${l}
-                </>
-              `)}
-            </>
-          `}
-        </>
-      `
+      );
     }
 
-    /* ─── Hero ──────────────────────────────────────────────── */
+    /* ─── Hero ───────────────────────────────────────────── */
     function Hero() {
-      const { scrollY } = useScroll()
-      const opacity = useTransform(scrollY, [0, 500], [1, 0])
-      const y = useTransform(scrollY, [0, 500], [0, 100])
+      return (
+        <section id="hero" className="hero-bg relative min-h-screen flex flex-col justify-center items-center overflow-hidden px-6" style={{ paddingTop: '80px' }}>
+          {/* Rings */}
+          {[500, 750, 1050].map((s, i) => (
+            <div key={s} className="ring" style={{ width: s, height: s, animationDelay: `${i}s` }} />
+          ))}
 
-      return html`
-        <section id="hero" className="hero-bg relative flex flex-col justify-center items-center min-h-screen overflow-hidden px-6">
+          <div className="relative z-10 text-center max-w-4xl mx-auto">
+            <p className="hero-anim-1" style={{ color: 'var(--gold)', letterSpacing: '.55em', fontSize: '.7rem', textTransform: 'uppercase' }}>
+              HOFN · 파인핸스
+            </p>
 
-          <!-- Background rings -->
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <div className="globe-ring" style=${{ width: '600px', height: '600px', animationDelay: '0s' }}></div>
-            <div className="globe-ring" style=${{ width: '900px', height: '900px', animationDelay: '1s' }}></div>
-            <div className="globe-ring" style=${{ width: '1200px', height: '1200px', animationDelay: '2s' }}></div>
+            <h1 className="hero-anim-2 font-extralight" style={{ fontSize: 'clamp(3.5rem,12vw,9rem)', letterSpacing: '-.02em', lineHeight: 1, marginTop: '1.5rem' }}>
+              조세원
+            </h1>
+
+            <div className="hero-anim-3 flex items-center justify-center gap-4" style={{ marginTop: '1.5rem', marginBottom: '3rem' }}>
+              <div className="divider" style={{ width: '3rem' }} />
+              <span className="text-white/35 font-light" style={{ fontSize: '.75rem', letterSpacing: '.4em', textTransform: 'uppercase' }}>Chief Executive Officer</span>
+              <div className="divider" style={{ width: '3rem' }} />
+            </div>
+
+            <p className="hero-anim-4 text-white/35 font-light leading-relaxed" style={{ fontSize: 'clamp(.9rem,1.2vw,1.15rem)', whiteSpace: 'pre-line', maxWidth: '500px', margin: '0 auto' }}>
+              {DATA.hero.vision}
+            </p>
           </div>
 
-          <${motion.div}
-            className="relative z-10 text-center max-w-4xl mx-auto"
-            style=${{ opacity, y }}
-          >
-            <!-- Brand -->
-            <${motion.div}
-              className="mb-16"
-              initial=${{ opacity: 0, y: 20 }}
-              animate=${{ opacity: 1, y: 0 }}
-              transition=${{ duration: 0.8, delay: 0.3 }}
-            >
-              <span className="text-xs tracking-[0.6em] uppercase" style=${{ color: 'var(--gold)' }}>
-                HOFN · 파인핸스
-              </span>
-            </>
-
-            <!-- Name -->
-            <${motion.h1}
-              className="font-['Inter'] font-extralight mb-6"
-              style=${{ fontSize: 'clamp(3.5rem, 12vw, 9rem)', letterSpacing: '-0.02em', lineHeight: 1 }}
-              initial=${{ opacity: 0, y: 40 }}
-              animate=${{ opacity: 1, y: 0 }}
-              transition=${{ duration: 1, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
-            >
-              조세원
-            </>
-
-            <!-- Title -->
-            <${motion.div}
-              className="flex items-center justify-center gap-4 mb-16"
-              initial=${{ opacity: 0 }}
-              animate=${{ opacity: 1 }}
-              transition=${{ duration: 0.8, delay: 0.9 }}
-            >
-              <div className="section-divider flex-1 max-w-16"></div>
-              <span className="text-white/40 text-sm tracking-[0.4em] uppercase">Chief Executive Officer</span>
-              <div className="section-divider flex-1 max-w-16"></div>
-            </>
-
-            <!-- Vision -->
-            <${motion.p}
-              className="text-white/40 text-base md:text-lg font-light leading-relaxed whitespace-pre-line max-w-xl mx-auto"
-              initial=${{ opacity: 0, y: 20 }}
-              animate=${{ opacity: 1, y: 0 }}
-              transition=${{ duration: 0.8, delay: 1.1 }}
-            >
-              ${DATA.hero.vision}
-            </>
-          </>
-
-          <!-- Scroll indicator -->
-          <${motion.div}
-            className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
-            initial=${{ opacity: 0 }}
-            animate=${{ opacity: 1 }}
-            transition=${{ delay: 1.8 }}
-          >
-            <span className="text-white/20 text-xs tracking-widest">SCROLL</span>
-            <div className="scroll-indicator w-px h-8" style=${{ background: 'linear-gradient(to bottom, rgba(201,168,76,0.6), transparent)' }}></div>
-          </>
+          <div className="hero-anim-5 absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2">
+            <span className="text-white/20" style={{ fontSize: '.6rem', letterSpacing: '.4em' }}>SCROLL</span>
+            <div className="scroll-arrow" style={{ width: '1px', height: '2.5rem', background: 'linear-gradient(to bottom, rgba(201,168,76,.6), transparent)' }} />
+          </div>
         </section>
-      `
+      );
     }
 
-    /* ─── About ─────────────────────────────────────────────── */
+    /* ─── About ──────────────────────────────────────────── */
     function About() {
-      return html`
-        <section id="about" className="py-32 px-6 md:px-16 lg:px-32 max-w-6xl mx-auto">
-          <${FadeSection}>
-            <${SectionLabel}>About</>
-            <h2 className="text-4xl md:text-5xl font-extralight mb-20" style=${{ letterSpacing: '-0.02em' }}>
+      const r1 = useReveal(0);
+      const r2 = useReveal(.15);
+      const r3 = useReveal(.3);
+      return (
+        <section id="about" className="py-32 px-6 md:px-16 lg:px-32" style={{ maxWidth: '1200px', margin: '0 auto' }}>
+          <div ref={r1} className="reveal mb-20">
+            <SectionLabel>About</SectionLabel>
+            <h2 className="font-extralight" style={{ fontSize: 'clamp(2rem,5vw,3.5rem)', letterSpacing: '-.02em', lineHeight: 1.2 }}>
               뷰티 테크를 이끄는<br/>
               <span className="gold-text">리더십의 궤적</span>
             </h2>
-          </>
+          </div>
 
           <div className="grid md:grid-cols-2 gap-12 items-start">
-            <${FadeSection} delay=${0.15}>
-              <div className="card-border rounded-2xl p-10">
-                <p className="text-xs tracking-widest uppercase mb-8" style=${{ color: 'var(--gold)' }}>Profile</p>
-                <div className="space-y-6">
-                  <div>
-                    <p className="text-white/30 text-xs tracking-widest uppercase mb-2">생년월일</p>
-                    <p className="text-white/80 text-lg font-light">${DATA.profile.birth}</p>
+            <div ref={r2} className="reveal glass-card p-10">
+              <SectionLabel>Profile</SectionLabel>
+              <div className="space-y-6 mt-4">
+                {[
+                  { label: '생년월일', value: DATA.profile.birth },
+                ].map(({ label, value }) => (
+                  <div key={label}>
+                    <p className="text-white/30 mb-1" style={{ fontSize: '.65rem', letterSpacing: '.3em', textTransform: 'uppercase' }}>{label}</p>
+                    <p className="text-white/80 font-light text-lg">{value}</p>
                   </div>
-                  <div className="section-divider"></div>
-                  <div>
-                    <p className="text-white/30 text-xs tracking-widest uppercase mb-3">학력</p>
-                    ${DATA.profile.education.map((edu, i) => html`
-                      <p key=${i} className="text-white/80 font-light py-2">${edu}</p>
-                    `)}
-                  </div>
-                  <div className="section-divider"></div>
-                  <div>
-                    <p className="text-white/30 text-xs tracking-widest uppercase mb-2">현재 직책</p>
-                    <p className="text-white/80 text-lg font-light">
-                      <span className="gold-text">CEO</span> · 파인핸스 / HOFN
-                    </p>
-                  </div>
+                ))}
+                <div className="divider" />
+                <div>
+                  <p className="text-white/30 mb-3" style={{ fontSize: '.65rem', letterSpacing: '.3em', textTransform: 'uppercase' }}>학력</p>
+                  {DATA.profile.education.map((e, i) => (
+                    <p key={i} className="text-white/75 font-light py-1.5">{e}</p>
+                  ))}
+                </div>
+                <div className="divider" />
+                <div>
+                  <p className="text-white/30 mb-2" style={{ fontSize: '.65rem', letterSpacing: '.3em', textTransform: 'uppercase' }}>현재 직책</p>
+                  <p className="text-white/80 font-light text-lg">
+                    <span className="gold-text">CEO</span> · 파인핸스 / HOFN
+                  </p>
                 </div>
               </div>
-            </>
+            </div>
 
-            <${FadeSection} delay=${0.3}>
-              <div className="space-y-8">
-                <div>
-                  <p className="text-white/30 text-xs tracking-widest uppercase mb-4">Philosophy</p>
-                  <blockquote className="text-xl md:text-2xl font-extralight leading-relaxed" style=${{ letterSpacing: '-0.01em' }}>
-                    "기술과 뷰티의 교차점에서<br/>
-                    <span className="gold-text">새로운 가능성</span>을 발견합니다."
-                  </blockquote>
-                </div>
-
-                <div className="section-divider"></div>
-
-                <div>
-                  <p className="text-white/30 text-xs tracking-widest uppercase mb-6">Key Highlights</p>
-                  <div className="space-y-4">
-                    ${[
-                      { num: "10+", label: "년 글로벌 비즈니스 경험" },
-                      { num: "5+", label: "개 기업 경영 이력" },
-                      { num: "多", label: "국가 유통 네트워크 구축" }
-                    ].map((item, i) => html`
-                      <div key=${i} className="flex items-center gap-6">
-                        <span className="gold-text text-3xl font-extralight w-16 text-right">${item.num}</span>
-                        <span className="text-white/50 font-light">${item.label}</span>
-                      </div>
-                    `)}
+            <div ref={r3} className="reveal">
+              <blockquote className="font-extralight leading-relaxed mb-10" style={{ fontSize: 'clamp(1.2rem,2.5vw,1.8rem)', letterSpacing: '-.01em' }}>
+                "기술과 뷰티의 교차점에서<br/>
+                <span className="gold-text">새로운 가능성</span>을 발견합니다."
+              </blockquote>
+              <div className="divider mb-10" />
+              <p className="text-white/30 mb-6" style={{ fontSize: '.65rem', letterSpacing: '.3em', textTransform: 'uppercase' }}>Key Highlights</p>
+              <div className="space-y-5">
+                {[
+                  { num: '10+', label: '년 글로벌 비즈니스 경험' },
+                  { num: '5+',  label: '개 기업 경영 이력' },
+                  { num: '多',  label: '국가 유통 네트워크 구축' }
+                ].map(({ num, label }) => (
+                  <div key={num} className="flex items-center gap-6">
+                    <span className="gold-text font-extralight" style={{ fontSize: '2rem', width: '4rem', textAlign: 'right' }}>{num}</span>
+                    <span className="text-white/45 font-light">{label}</span>
                   </div>
-                </div>
+                ))}
               </div>
-            </>
+            </div>
           </div>
         </section>
-      `
+      );
     }
 
-    /* ─── Career ────────────────────────────────────────────── */
+    /* ─── Career ─────────────────────────────────────────── */
     function CareerItem({ item, index }) {
-      const ref = useRef(null)
-      const inView = useInView(ref, { once: true, margin: '-60px' })
-      const isEven = index % 2 === 0
+      const isEven = index % 2 === 0;
+      const ref = useRef(null);
+      useEffect(() => {
+        const el = ref.current;
+        if (!el) return;
+        el.style.transitionDelay = `${index * .1}s`;
+        const obs = new IntersectionObserver(
+          ([e]) => { if (e.isIntersecting) { el.classList.add('visible'); obs.disconnect(); } },
+          { threshold: .12, rootMargin: '-60px' }
+        );
+        obs.observe(el);
+        return () => obs.disconnect();
+      }, [index]);
 
-      return html`
-        <${motion.div}
-          ref=${ref}
-          className="relative grid grid-cols-[1fr_auto_1fr] gap-6 items-center"
-          initial=${{ opacity: 0, x: isEven ? -40 : 40 }}
-          animate=${inView ? { opacity: 1, x: 0 } : { opacity: 0, x: isEven ? -40 : 40 }}
-          transition=${{ duration: 0.8, ease: [0.22, 1, 0.36, 1], delay: index * 0.1 }}
-        >
-          <!-- Left -->
-          <div className=${`text-right ${isEven ? '' : 'opacity-0 pointer-events-none'}`}>
-            ${isEven && html`
-              <div className="card-border rounded-xl p-6 inline-block text-left">
-                <p className="gold-text text-2xl font-extralight mb-1">${item.year}</p>
-                <p className="text-white text-base font-light mb-1">${item.company}</p>
-                <p className="text-white/40 text-xs tracking-widest uppercase mb-2">${item.role}</p>
-                <p className="text-white/30 text-sm">${item.desc}</p>
-              </div>
-            `}
-          </div>
+      const Card = () => (
+        <div className="glass-card p-6 inline-block text-left" style={{ maxWidth: '280px' }}>
+          <p className="gold-text font-extralight mb-1" style={{ fontSize: '1.6rem' }}>{item.year}</p>
+          <p className="text-white font-light text-base mb-1">{item.company}</p>
+          <p className="text-white/40 mb-2" style={{ fontSize: '.65rem', letterSpacing: '.3em', textTransform: 'uppercase' }}>{item.role}</p>
+          <p className="text-white/30 text-sm">{item.desc}</p>
+        </div>
+      );
 
-          <!-- Center dot -->
-          <div className="flex flex-col items-center">
-            <div className="timeline-dot"></div>
+      return (
+        <div ref={ref} className={`${isEven ? 'reveal-left' : 'reveal-right'}`}>
+          {/* Desktop: alternating */}
+          <div className="hidden md:grid items-center" style={{ gridTemplateColumns: '1fr 2rem 1fr', gap: '1.5rem' }}>
+            <div className="flex justify-end">{isEven ? <Card /> : null}</div>
+            <div className="flex justify-center"><div className="t-dot" /></div>
+            <div>{!isEven ? <Card /> : null}</div>
           </div>
-
-          <!-- Right -->
-          <div className=${`${!isEven ? '' : 'opacity-0 pointer-events-none'}`}>
-            ${!isEven && html`
-              <div className="card-border rounded-xl p-6 inline-block">
-                <p className="gold-text text-2xl font-extralight mb-1">${item.year}</p>
-                <p className="text-white text-base font-light mb-1">${item.company}</p>
-                <p className="text-white/40 text-xs tracking-widest uppercase mb-2">${item.role}</p>
-                <p className="text-white/30 text-sm">${item.desc}</p>
-              </div>
-            `}
+          {/* Mobile: single column */}
+          <div className="flex md:hidden items-start gap-5">
+            <div className="flex flex-col items-center pt-1">
+              <div className="t-dot" />
+              {index < DATA.career.length - 1 && <div style={{ width: '1px', flex: 1, minHeight: '60px', background: 'rgba(201,168,76,.3)', marginTop: '8px' }} />}
+            </div>
+            <Card />
           </div>
-        </>
-      `
+        </div>
+      );
     }
 
     function Career() {
-      return html`
+      const title = useReveal(0);
+      return (
         <section id="career" className="py-32 px-6 md:px-16 lg:px-32">
-          <div className="max-w-5xl mx-auto">
-            <${FadeSection}>
-              <${SectionLabel}>Career Timeline</>
-              <h2 className="text-4xl md:text-5xl font-extralight mb-20" style=${{ letterSpacing: '-0.02em' }}>
+          <div style={{ maxWidth: '900px', margin: '0 auto' }}>
+            <div ref={title} className="reveal mb-20">
+              <SectionLabel>Career Timeline</SectionLabel>
+              <h2 className="font-extralight" style={{ fontSize: 'clamp(2rem,5vw,3.5rem)', letterSpacing: '-.02em' }}>
                 경력의 <span className="gold-text">이정표</span>
               </h2>
-            </>
+            </div>
 
-            <!-- Timeline -->
+            {/* Desktop timeline line */}
             <div className="relative">
-              <!-- Vertical line -->
-              <div
-                className="absolute left-1/2 -translate-x-1/2 top-0 bottom-0 w-px"
-                style=${{ background: 'linear-gradient(to bottom, transparent, rgba(201,168,76,0.3), rgba(201,168,76,0.5), rgba(201,168,76,0.3), transparent)' }}
-              ></div>
-
-              <div className="space-y-12">
-                ${DATA.career.map((item, i) => html`
-                  <${CareerItem} key=${item.year} item=${item} index=${i} />
-                `)}
+              <div className="hidden md:block absolute top-0 bottom-0 left-1/2 -translate-x-1/2"
+                   style={{ width: '1px', background: 'linear-gradient(to bottom, transparent, rgba(201,168,76,.4), rgba(201,168,76,.5), rgba(201,168,76,.4), transparent)' }} />
+              <div className="space-y-10">
+                {DATA.career.map((item, i) => <CareerItem key={item.year} item={item} index={i} />)}
               </div>
             </div>
           </div>
         </section>
-      `
+      );
     }
 
-    /* ─── Core Competencies ─────────────────────────────────── */
+    /* ─── Core ───────────────────────────────────────────── */
     function Core() {
-      return html`
+      const title = useReveal(0);
+      return (
         <section id="core" className="py-32 px-6 md:px-16 lg:px-32">
-          <div className="section-divider mb-32"></div>
-          <div className="max-w-6xl mx-auto">
-            <${FadeSection}>
-              <${SectionLabel}>Core Competencies</>
-              <h2 className="text-4xl md:text-5xl font-extralight mb-20" style=${{ letterSpacing: '-0.02em' }}>
+          <div className="divider mb-24" />
+          <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+            <div ref={title} className="reveal mb-16">
+              <SectionLabel>Core Competencies</SectionLabel>
+              <h2 className="font-extralight" style={{ fontSize: 'clamp(2rem,5vw,3.5rem)', letterSpacing: '-.02em' }}>
                 핵심 <span className="gold-text">역량</span>
               </h2>
-            </>
+            </div>
 
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              ${DATA.core.map((item, i) => html`
-                <${FadeSection} key=${item.label} delay=${i * 0.08}>
-                  <div className="competency-card rounded-2xl p-8 h-full cursor-default">
-                    <div className="text-2xl mb-4 gold-text">0${i+1}</div>
-                    <p className="text-white font-light text-lg mb-2">${item.label}</p>
-                    <p className="text-white/30 text-sm">${item.desc}</p>
+              {DATA.core.map((item, i) => {
+                const ref = useReveal(i * .08);
+                return (
+                  <div key={item.num} ref={ref} className="reveal core-card p-8">
+                    <div className="gold-text font-extralight mb-4" style={{ fontSize: '1.5rem' }}>{item.num}</div>
+                    <p className="text-white font-light text-lg mb-2">{item.label}</p>
+                    <p className="text-white/30 text-sm">{item.desc}</p>
                   </div>
-                </>
-              `)}
+                );
+              })}
             </div>
           </div>
-          <div className="section-divider mt-32"></div>
+          <div className="divider mt-24" />
         </section>
-      `
+      );
     }
 
-    /* ─── Portfolio ─────────────────────────────────────────── */
+    /* ─── Portfolio ──────────────────────────────────────── */
     function Portfolio() {
-      return html`
+      const title = useReveal(0);
+      return (
         <section id="portfolio" className="py-32 px-6 md:px-16 lg:px-32">
-          <div className="max-w-6xl mx-auto">
-            <${FadeSection}>
-              <${SectionLabel}>Portfolio</>
-              <h2 className="text-4xl md:text-5xl font-extralight mb-20" style=${{ letterSpacing: '-0.02em' }}>
+          <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+            <div ref={title} className="reveal mb-16">
+              <SectionLabel>Portfolio</SectionLabel>
+              <h2 className="font-extralight" style={{ fontSize: 'clamp(2rem,5vw,3.5rem)', letterSpacing: '-.02em' }}>
                 주요 <span className="gold-text">벤처</span>
               </h2>
-            </>
+            </div>
 
             <div className="grid md:grid-cols-2 gap-6">
-              ${DATA.portfolio.map((item, i) => html`
-                <${FadeSection} key=${item.company} delay=${i * 0.12}>
-                  <div className="portfolio-card rounded-2xl p-10 h-full">
+              {DATA.portfolio.map((item, i) => {
+                const ref = useReveal(i * .12);
+                return (
+                  <div key={item.company} ref={ref} className="reveal portfolio-card p-10">
                     <div className="flex justify-between items-start mb-8">
-                      <span
-                        className="text-xs tracking-widest uppercase px-3 py-1 rounded-full"
-                        style=${{ color: 'var(--gold)', border: '1px solid rgba(201,168,76,0.3)' }}
-                      >
-                        ${item.category}
-                      </span>
-                      <span className="text-white/25 text-xs font-light">${item.period}</span>
+                      <span className="gold-tag">{item.cat}</span>
+                      <span className="text-white/25 font-light" style={{ fontSize: '.75rem' }}>{item.period}</span>
                     </div>
-
-                    <h3 className="text-xl font-light text-white mb-4" style=${{ letterSpacing: '-0.01em' }}>
-                      ${item.company}
-                    </h3>
-
-                    <p className="text-white/40 text-sm leading-relaxed">${item.summary}</p>
-
-                    <div
-                      className="mt-8 pt-6"
-                      style=${{ borderTop: '1px solid rgba(255,255,255,0.05)' }}
-                    >
-                      <span className="text-white/20 text-xs tracking-widest">VENTURE ${i + 1} / ${DATA.portfolio.length}</span>
+                    <h3 className="text-white font-light text-xl mb-4" style={{ letterSpacing: '-.01em' }}>{item.company}</h3>
+                    <p className="text-white/40 text-sm leading-relaxed">{item.desc}</p>
+                    <div className="mt-8 pt-6" style={{ borderTop: '1px solid rgba(255,255,255,.05)' }}>
+                      <span className="text-white/20" style={{ fontSize: '.65rem', letterSpacing: '.3em' }}>
+                        VENTURE {i + 1} / {DATA.portfolio.length}
+                      </span>
                     </div>
                   </div>
-                </>
-              `)}
+                );
+              })}
             </div>
           </div>
         </section>
-      `
+      );
     }
 
-    /* ─── Global ────────────────────────────────────────────── */
+    /* ─── Global ─────────────────────────────────────────── */
     function Global() {
-      return html`
-        <section id="global" className="py-32 px-6 md:px-16 lg:px-32 overflow-hidden">
-          <div className="section-divider mb-32"></div>
-          <div className="max-w-6xl mx-auto">
-            <${FadeSection}>
-              <${SectionLabel}>Global Vision</>
-              <h2 className="text-4xl md:text-5xl font-extralight mb-8" style=${{ letterSpacing: '-0.02em' }}>
+      const r1 = useReveal(0);
+      const r2 = useReveal(.2);
+      const r3 = useReveal(.4);
+      return (
+        <section id="global" className="py-32 px-6 md:px-16 lg:px-32">
+          <div className="divider mb-24" />
+          <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+            <div ref={r1} className="reveal mb-8">
+              <SectionLabel>Global Vision</SectionLabel>
+              <h2 className="font-extralight" style={{ fontSize: 'clamp(2rem,5vw,3.5rem)', letterSpacing: '-.02em' }}>
                 <span className="gold-text">글로벌</span> 시장으로
               </h2>
-              <p className="text-white/40 text-lg font-light max-w-2xl leading-relaxed mb-20">
-                ${DATA.global.vision}
+            </div>
+
+            <p className="text-white/35 font-light leading-relaxed mb-20" style={{ fontSize: 'clamp(.9rem,1.1vw,1.1rem)', maxWidth: '640px' }}>
+              HOFN은 AI와 스마트 디바이스의 결합으로 국경 없는 개인 맞춤형 뷰티 경험을 전 세계에 제공합니다.
+            </p>
+
+            <div ref={r2} className="reveal flex flex-wrap gap-3 mb-20">
+              {DATA.markets.map(m => <span key={m} className="market-tag">{m}</span>)}
+            </div>
+
+            <div ref={r3} className="reveal rounded-3xl text-center py-16 px-8"
+                 style={{ border: '1px solid rgba(201,168,76,.12)', background: 'radial-gradient(ellipse 80% 60% at 50% 0%, rgba(201,168,76,.07) 0%, transparent 70%)' }}>
+              <p className="font-extralight leading-relaxed" style={{ fontSize: 'clamp(1.2rem,3vw,2.2rem)', letterSpacing: '-.02em' }}>
+                "아름다움의 미래는<br/>
+                <span className="gold-text">개인화된 AI 경험</span>에 있습니다."
               </p>
-            </>
-
-            <!-- Market tags -->
-            <${FadeSection} delay=${0.2}>
-              <div className="flex flex-wrap gap-3 mb-24">
-                ${DATA.global.markets.map((m, i) => html`
-                  <${motion.span}
-                    key=${m}
-                    className="px-6 py-3 rounded-full text-sm font-light"
-                    style=${{ border: '1px solid rgba(201,168,76,0.25)', color: 'rgba(255,255,255,0.6)' }}
-                    whileHover=${{ borderColor: 'rgba(201,168,76,0.7)', color: '#fff', scale: 1.04 }}
-                    initial=${{ opacity: 0, scale: 0.9 }}
-                    animate=${{ opacity: 1, scale: 1 }}
-                    transition=${{ delay: i * 0.07 + 0.4 }}
-                  >
-                    ${m}
-                  </>
-                `)}
-              </div>
-            </>
-
-            <!-- Large vision quote -->
-            <${FadeSection} delay=${0.4}>
-              <div className="relative py-16 px-8 rounded-3xl text-center overflow-hidden"
-                style=${{ border: '1px solid rgba(201,168,76,0.12)', background: 'radial-gradient(ellipse 80% 60% at 50% 0%, rgba(201,168,76,0.06) 0%, transparent 70%)' }}
-              >
-                <p className="text-2xl md:text-4xl font-extralight leading-relaxed" style=${{ letterSpacing: '-0.02em' }}>
-                  "아름다움의 미래는<br/>
-                  <span className="gold-text">개인화된 AI 경험</span>에 있습니다."
-                </p>
-                <div className="mt-8 text-white/30 text-sm tracking-widest">— 조세원, CEO HOFN</div>
-              </div>
-            </>
+              <p className="text-white/25 mt-6" style={{ fontSize: '.8rem', letterSpacing: '.2em' }}>— 조세원, CEO HOFN</p>
+            </div>
           </div>
         </section>
-      `
+      );
     }
 
-    /* ─── Footer ────────────────────────────────────────────── */
+    /* ─── Footer ─────────────────────────────────────────── */
     function Footer() {
-      return html`
+      return (
         <footer className="py-16 px-6 md:px-16 lg:px-32">
-          <div className="section-divider mb-16"></div>
-          <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
+          <div className="divider mb-16" />
+          <div className="flex flex-col md:flex-row justify-between items-center gap-8" style={{ maxWidth: '1200px', margin: '0 auto' }}>
             <div>
-              <p className="gold-text text-lg font-light tracking-[0.4em] mb-2">HOFN</p>
+              <p className="gold-text font-light mb-1" style={{ fontSize: '1.1rem', letterSpacing: '.4em' }}>HOFN</p>
               <p className="text-white/25 text-sm">파인핸스 · 조세원 CEO</p>
             </div>
-            <div className="text-center">
-              <p className="text-white/15 text-xs tracking-widest">
-                AI BEAUTY TECH · GLOBAL PLATFORM
-              </p>
-            </div>
+            <p className="text-white/15" style={{ fontSize: '.65rem', letterSpacing: '.35em', textTransform: 'uppercase' }}>
+              AI Beauty Tech · Global Platform
+            </p>
             <div className="text-right">
-              <p className="text-white/25 text-xs">© 2024 HOFN / 파인핸스</p>
-              <p className="text-white/15 text-xs mt-1">All Rights Reserved</p>
+              <p className="text-white/20 text-xs">© 2024 HOFN / 파인핸스</p>
+              <p className="text-white/12 text-xs mt-1">All Rights Reserved</p>
             </div>
           </div>
         </footer>
-      `
+      );
     }
 
-    /* ─── App ───────────────────────────────────────────────── */
+    /* ─── App ────────────────────────────────────────────── */
     function App() {
-      return html`
-        <div>
-          <${Nav} />
-          <${Hero} />
-          <${About} />
-          <${Career} />
-          <${Core} />
-          <${Portfolio} />
-          <${Global} />
-          <${Footer} />
-        </div>
-      `
+      return (
+        <>
+          <Nav />
+          <Hero />
+          <About />
+          <Career />
+          <Core />
+          <Portfolio />
+          <Global />
+          <Footer />
+        </>
+      );
     }
 
-    /* ─── Mount ─────────────────────────────────────────────── */
-    createRoot(document.getElementById('root')).render(html`<${App} />`)
+    /* ─── Mount ──────────────────────────────────────────── */
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
   </script>
 </body>
 </html>

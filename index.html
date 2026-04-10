@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>조세원 | CEO · HOFN</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Inter:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root { --gold: #C9A84C; --gold-light: #EDD98A; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: #080808;
+      color: #fff;
+      font-family: 'Inter', 'Noto Sans KR', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+    ::selection { background: rgba(201,168,76,0.3); }
+    ::-webkit-scrollbar { width: 2px; }
+    ::-webkit-scrollbar-track { background: #111; }
+    ::-webkit-scrollbar-thumb { background: var(--gold); }
+
+    .gold-text {
+      background: linear-gradient(135deg, #C9A84C 0%, #EDD98A 50%, #C9A84C 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .section-divider {
+      height: 1px;
+      background: linear-gradient(to right, transparent, rgba(201,168,76,0.4), transparent);
+    }
+    .hero-bg {
+      background:
+        radial-gradient(ellipse 80% 60% at 50% 0%, rgba(201,168,76,0.08) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 40% at 80% 80%, rgba(201,168,76,0.05) 0%, transparent 60%),
+        #080808;
+    }
+    .card-border {
+      border: 1px solid rgba(255,255,255,0.07);
+      background: rgba(255,255,255,0.02);
+      backdrop-filter: blur(12px);
+    }
+    .card-border:hover {
+      border-color: rgba(201,168,76,0.3);
+      background: rgba(201,168,76,0.04);
+      transition: all 0.4s ease;
+    }
+    .nav-blur {
+      background: rgba(8,8,8,0.7);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .timeline-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: var(--gold);
+      box-shadow: 0 0 12px rgba(201,168,76,0.6);
+    }
+    .competency-card {
+      border: 1px solid rgba(201,168,76,0.15);
+      background: linear-gradient(135deg, rgba(201,168,76,0.05), rgba(255,255,255,0.02));
+      transition: all 0.35s ease;
+    }
+    .competency-card:hover {
+      border-color: rgba(201,168,76,0.5);
+      background: linear-gradient(135deg, rgba(201,168,76,0.1), rgba(255,255,255,0.04));
+      transform: translateY(-4px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.4), 0 0 20px rgba(201,168,76,0.1);
+    }
+    .portfolio-card {
+      border: 1px solid rgba(255,255,255,0.06);
+      background: rgba(255,255,255,0.015);
+      transition: all 0.4s ease;
+      overflow: hidden;
+      position: relative;
+    }
+    .portfolio-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(201,168,76,0.06) 0%, transparent 60%);
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+    .portfolio-card:hover::before { opacity: 1; }
+    .portfolio-card:hover {
+      border-color: rgba(201,168,76,0.25);
+      transform: translateY(-6px);
+      box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+    }
+    .globe-ring {
+      border: 1px solid rgba(201,168,76,0.2);
+      border-radius: 50%;
+      position: absolute;
+      animation: pulse-ring 3s ease-in-out infinite;
+    }
+    @keyframes pulse-ring {
+      0%, 100% { opacity: 0.2; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(1.02); }
+    }
+    .scroll-indicator {
+      animation: bounce 2s ease-in-out infinite;
+    }
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(8px); }
+    }
+    @media (max-width: 768px) {
+      .hide-mobile { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="module">
+    import React, { useState, useEffect, useRef } from 'https://esm.sh/react@18'
+    import { createRoot } from 'https://esm.sh/react-dom@18/client'
+    import {
+      motion, AnimatePresence,
+      useInView, useScroll, useTransform
+    } from 'https://esm.sh/framer-motion@11'
+    import htm from 'https://esm.sh/htm@3'
+
+    const html = htm.bind(React.createElement)
+
+    /* ─── Data ─────────────────────────────────────────────── */
+    const DATA = {
+      hero: {
+        name: "조세원",
+        title: "CEO",
+        company: "파인핸스",
+        brand: "HOFN",
+        vision: "AI 기반 개인 맞춤형 스킨케어 플랫폼 및\n스마트 뷰티 디바이스를 통한 글로벌 뷰티 테크 선도"
+      },
+      profile: {
+        birth: "1979.02.04",
+        education: ["단국대학교 영어학과", "Radisson Hotel 미국 인턴십"]
+      },
+      career: [
+        { year: "2013", company: "제이비알", role: "대표이사", desc: "IT / SW / HW 사업 기반 구축" },
+        { year: "2015", company: "제이비알아이엔티", role: "대표이사", desc: "국내외 유통 네트워크 확장" },
+        { year: "2018", company: "제이와이앤인터내셔널", role: "대표이사", desc: "글로벌 비즈니스 플랫폼 개발" },
+        { year: "2019", company: "룩스앤메이코스메틱", role: "글로벌 본부장", desc: "화장품 글로벌 유통 총괄" },
+        { year: "2024", company: "파인핸스", role: "대표이사", desc: "AI 뷰티 테크 스타트업 창업" }
+      ],
+      core: [
+        { label: "IT · SW · HW", icon: "⬡", desc: "통합 기술 사업 운영" },
+        { label: "뷰티 & 코스메틱", icon: "⬡", desc: "화장품 산업 심층 경험" },
+        { label: "EV 충전 인프라", icon: "⬡", desc: "전기차 충전 인프라 사업" },
+        { label: "글로벌 유통", icon: "⬡", desc: "해외 유통 네트워크" },
+        { label: "시장 확장", icon: "⬡", desc: "신시장 개척 성과" },
+        { label: "플랫폼 사업화", icon: "⬡", desc: "디지털 플랫폼 구축" }
+      ],
+      portfolio: [
+        {
+          company: "제이비알 / 제이비알아이엔티",
+          period: "2013 — 2017",
+          category: "IT · 유통",
+          summary: "IT, SW, HW 기반 사업 운영 및 국내외 유통 네트워크 확립. 초기 시장 진입 전략 수립 및 성장 견인."
+        },
+        {
+          company: "제이와이앤인터내셔널",
+          period: "2018 — 2019",
+          category: "글로벌 비즈니스",
+          summary: "글로벌 비즈니스 플랫폼 개발 및 해외 파트너십 구축. 다국적 시장 확장 전략 실행."
+        },
+        {
+          company: "룩스앤메이코스메틱",
+          period: "2019 — 2023",
+          category: "뷰티 · 글로벌",
+          summary: "뷰티 산업 글로벌 본부 총괄. K-뷰티 해외 유통 전략 기획 및 브랜드 글로벌화 리드."
+        },
+        {
+          company: "파인핸스 · HOFN",
+          period: "2024 — Present",
+          category: "AI · 뷰티 테크",
+          summary: "AI 맞춤형 스킨케어 플랫폼과 스마트 뷰티 디바이스 개발. 글로벌 뷰티 테크 시장 선도."
+        }
+      ],
+      global: {
+        markets: ["한국", "미국", "일본", "중국", "동남아시아", "유럽"],
+        vision: "HOFN은 AI와 스마트 디바이스의 결합으로 국경 없는 개인 맞춤형 뷰티 경험을 전 세계에 제공합니다."
+      }
+    }
+
+    /* ─── Hooks ─────────────────────────────────────────────── */
+    function useScrolled(threshold = 50) {
+      const [scrolled, setScrolled] = useState(false)
+      useEffect(() => {
+        const fn = () => setScrolled(window.scrollY > threshold)
+        window.addEventListener('scroll', fn, { passive: true })
+        return () => window.removeEventListener('scroll', fn)
+      }, [threshold])
+      return scrolled
+    }
+
+    /* ─── Shared Components ─────────────────────────────────── */
+    function FadeSection({ children, delay = 0, className = '' }) {
+      const ref = useRef(null)
+      const inView = useInView(ref, { once: true, margin: '-80px' })
+      return html`
+        <${motion.div}
+          ref=${ref}
+          className=${className}
+          initial=${{ opacity: 0, y: 50 }}
+          animate=${inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
+          transition=${{ duration: 0.9, delay, ease: [0.22, 1, 0.36, 1] }}
+        >
+          ${children}
+        </>
+      `
+    }
+
+    function SectionLabel({ children }) {
+      return html`
+        <${motion.p}
+          className="text-xs tracking-[0.35em] uppercase mb-4"
+          style=${{ color: 'var(--gold)' }}
+        >
+          ${children}
+        </>
+      `
+    }
+
+    /* ─── Nav ───────────────────────────────────────────────── */
+    function Nav() {
+      const scrolled = useScrolled()
+      const [menuOpen, setMenuOpen] = useState(false)
+      const links = ['about', 'career', 'core', 'portfolio', 'global']
+
+      return html`
+        <${motion.nav}
+          className=${`fixed top-0 left-0 right-0 z-50 px-6 md:px-12 py-5 flex justify-between items-center transition-all duration-500 ${scrolled ? 'nav-blur' : ''}`}
+          initial=${{ y: -60, opacity: 0 }}
+          animate=${{ y: 0, opacity: 1 }}
+          transition=${{ duration: 0.8, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+        >
+          <a href="#hero" className="gold-text font-light tracking-[0.5em] text-sm font-['Inter']">
+            HOFN
+          </a>
+
+          <div className="hide-mobile flex items-center gap-10">
+            ${links.map(l => html`
+              <a
+                key=${l}
+                href=${`#${l}`}
+                className="text-white/50 hover:text-white text-xs tracking-[0.25em] uppercase transition-colors duration-300"
+              >
+                ${l}
+              </a>
+            `)}
+          </div>
+
+          <button
+            className="md:hidden text-white/60 hover:text-white"
+            onClick=${() => setMenuOpen(v => !v)}
+          >
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+              ${menuOpen
+                ? html`<path d="M4 4l12 12M16 4L4 16" stroke="currentColor" strokeWidth="1.5"/>`
+                : html`<>
+                    <line x1="3" y1="6" x2="17" y2="6" stroke="currentColor" strokeWidth="1.5"/>
+                    <line x1="3" y1="10" x2="17" y2="10" stroke="currentColor" strokeWidth="1.5"/>
+                    <line x1="3" y1="14" x2="17" y2="14" stroke="currentColor" strokeWidth="1.5"/>
+                  </>`
+              }
+            </svg>
+          </button>
+        </>
+
+        <${AnimatePresence}>
+          ${menuOpen && html`
+            <${motion.div}
+              className="fixed inset-0 z-40 flex flex-col justify-center items-center gap-10 nav-blur"
+              initial=${{ opacity: 0 }}
+              animate=${{ opacity: 1 }}
+              exit=${{ opacity: 0 }}
+              transition=${{ duration: 0.3 }}
+            >
+              ${links.map((l, i) => html`
+                <${motion.a}
+                  key=${l}
+                  href=${`#${l}`}
+                  className="text-white text-2xl tracking-widest uppercase"
+                  initial=${{ opacity: 0, y: 20 }}
+                  animate=${{ opacity: 1, y: 0 }}
+                  transition=${{ delay: i * 0.08 }}
+                  onClick=${() => setMenuOpen(false)}
+                >
+                  ${l}
+                </>
+              `)}
+            </>
+          `}
+        </>
+      `
+    }
+
+    /* ─── Hero ──────────────────────────────────────────────── */
+    function Hero() {
+      const { scrollY } = useScroll()
+      const opacity = useTransform(scrollY, [0, 500], [1, 0])
+      const y = useTransform(scrollY, [0, 500], [0, 100])
+
+      return html`
+        <section id="hero" className="hero-bg relative flex flex-col justify-center items-center min-h-screen overflow-hidden px-6">
+
+          <!-- Background rings -->
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <div className="globe-ring" style=${{ width: '600px', height: '600px', animationDelay: '0s' }}></div>
+            <div className="globe-ring" style=${{ width: '900px', height: '900px', animationDelay: '1s' }}></div>
+            <div className="globe-ring" style=${{ width: '1200px', height: '1200px', animationDelay: '2s' }}></div>
+          </div>
+
+          <${motion.div}
+            className="relative z-10 text-center max-w-4xl mx-auto"
+            style=${{ opacity, y }}
+          >
+            <!-- Brand -->
+            <${motion.div}
+              className="mb-16"
+              initial=${{ opacity: 0, y: 20 }}
+              animate=${{ opacity: 1, y: 0 }}
+              transition=${{ duration: 0.8, delay: 0.3 }}
+            >
+              <span className="text-xs tracking-[0.6em] uppercase" style=${{ color: 'var(--gold)' }}>
+                HOFN · 파인핸스
+              </span>
+            </>
+
+            <!-- Name -->
+            <${motion.h1}
+              className="font-['Inter'] font-extralight mb-6"
+              style=${{ fontSize: 'clamp(3.5rem, 12vw, 9rem)', letterSpacing: '-0.02em', lineHeight: 1 }}
+              initial=${{ opacity: 0, y: 40 }}
+              animate=${{ opacity: 1, y: 0 }}
+              transition=${{ duration: 1, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
+            >
+              조세원
+            </>
+
+            <!-- Title -->
+            <${motion.div}
+              className="flex items-center justify-center gap-4 mb-16"
+              initial=${{ opacity: 0 }}
+              animate=${{ opacity: 1 }}
+              transition=${{ duration: 0.8, delay: 0.9 }}
+            >
+              <div className="section-divider flex-1 max-w-16"></div>
+              <span className="text-white/40 text-sm tracking-[0.4em] uppercase">Chief Executive Officer</span>
+              <div className="section-divider flex-1 max-w-16"></div>
+            </>
+
+            <!-- Vision -->
+            <${motion.p}
+              className="text-white/40 text-base md:text-lg font-light leading-relaxed whitespace-pre-line max-w-xl mx-auto"
+              initial=${{ opacity: 0, y: 20 }}
+              animate=${{ opacity: 1, y: 0 }}
+              transition=${{ duration: 0.8, delay: 1.1 }}
+            >
+              ${DATA.hero.vision}
+            </>
+          </>
+
+          <!-- Scroll indicator -->
+          <${motion.div}
+            className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
+            initial=${{ opacity: 0 }}
+            animate=${{ opacity: 1 }}
+            transition=${{ delay: 1.8 }}
+          >
+            <span className="text-white/20 text-xs tracking-widest">SCROLL</span>
+            <div className="scroll-indicator w-px h-8" style=${{ background: 'linear-gradient(to bottom, rgba(201,168,76,0.6), transparent)' }}></div>
+          </>
+        </section>
+      `
+    }
+
+    /* ─── About ─────────────────────────────────────────────── */
+    function About() {
+      return html`
+        <section id="about" className="py-32 px-6 md:px-16 lg:px-32 max-w-6xl mx-auto">
+          <${FadeSection}>
+            <${SectionLabel}>About</>
+            <h2 className="text-4xl md:text-5xl font-extralight mb-20" style=${{ letterSpacing: '-0.02em' }}>
+              뷰티 테크를 이끄는<br/>
+              <span className="gold-text">리더십의 궤적</span>
+            </h2>
+          </>
+
+          <div className="grid md:grid-cols-2 gap-12 items-start">
+            <${FadeSection} delay=${0.15}>
+              <div className="card-border rounded-2xl p-10">
+                <p className="text-xs tracking-widest uppercase mb-8" style=${{ color: 'var(--gold)' }}>Profile</p>
+                <div className="space-y-6">
+                  <div>
+                    <p className="text-white/30 text-xs tracking-widest uppercase mb-2">생년월일</p>
+                    <p className="text-white/80 text-lg font-light">${DATA.profile.birth}</p>
+                  </div>
+                  <div className="section-divider"></div>
+                  <div>
+                    <p className="text-white/30 text-xs tracking-widest uppercase mb-3">학력</p>
+                    ${DATA.profile.education.map((edu, i) => html`
+                      <p key=${i} className="text-white/80 font-light py-2">${edu}</p>
+                    `)}
+                  </div>
+                  <div className="section-divider"></div>
+                  <div>
+                    <p className="text-white/30 text-xs tracking-widest uppercase mb-2">현재 직책</p>
+                    <p className="text-white/80 text-lg font-light">
+                      <span className="gold-text">CEO</span> · 파인핸스 / HOFN
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </>
+
+            <${FadeSection} delay=${0.3}>
+              <div className="space-y-8">
+                <div>
+                  <p className="text-white/30 text-xs tracking-widest uppercase mb-4">Philosophy</p>
+                  <blockquote className="text-xl md:text-2xl font-extralight leading-relaxed" style=${{ letterSpacing: '-0.01em' }}>
+                    "기술과 뷰티의 교차점에서<br/>
+                    <span className="gold-text">새로운 가능성</span>을 발견합니다."
+                  </blockquote>
+                </div>
+
+                <div className="section-divider"></div>
+
+                <div>
+                  <p className="text-white/30 text-xs tracking-widest uppercase mb-6">Key Highlights</p>
+                  <div className="space-y-4">
+                    ${[
+                      { num: "10+", label: "년 글로벌 비즈니스 경험" },
+                      { num: "5+", label: "개 기업 경영 이력" },
+                      { num: "多", label: "국가 유통 네트워크 구축" }
+                    ].map((item, i) => html`
+                      <div key=${i} className="flex items-center gap-6">
+                        <span className="gold-text text-3xl font-extralight w-16 text-right">${item.num}</span>
+                        <span className="text-white/50 font-light">${item.label}</span>
+                      </div>
+                    `)}
+                  </div>
+                </div>
+              </div>
+            </>
+          </div>
+        </section>
+      `
+    }
+
+    /* ─── Career ────────────────────────────────────────────── */
+    function CareerItem({ item, index }) {
+      const ref = useRef(null)
+      const inView = useInView(ref, { once: true, margin: '-60px' })
+      const isEven = index % 2 === 0
+
+      return html`
+        <${motion.div}
+          ref=${ref}
+          className="relative grid grid-cols-[1fr_auto_1fr] gap-6 items-center"
+          initial=${{ opacity: 0, x: isEven ? -40 : 40 }}
+          animate=${inView ? { opacity: 1, x: 0 } : { opacity: 0, x: isEven ? -40 : 40 }}
+          transition=${{ duration: 0.8, ease: [0.22, 1, 0.36, 1], delay: index * 0.1 }}
+        >
+          <!-- Left -->
+          <div className=${`text-right ${isEven ? '' : 'opacity-0 pointer-events-none'}`}>
+            ${isEven && html`
+              <div className="card-border rounded-xl p-6 inline-block text-left">
+                <p className="gold-text text-2xl font-extralight mb-1">${item.year}</p>
+                <p className="text-white text-base font-light mb-1">${item.company}</p>
+                <p className="text-white/40 text-xs tracking-widest uppercase mb-2">${item.role}</p>
+                <p className="text-white/30 text-sm">${item.desc}</p>
+              </div>
+            `}
+          </div>
+
+          <!-- Center dot -->
+          <div className="flex flex-col items-center">
+            <div className="timeline-dot"></div>
+          </div>
+
+          <!-- Right -->
+          <div className=${`${!isEven ? '' : 'opacity-0 pointer-events-none'}`}>
+            ${!isEven && html`
+              <div className="card-border rounded-xl p-6 inline-block">
+                <p className="gold-text text-2xl font-extralight mb-1">${item.year}</p>
+                <p className="text-white text-base font-light mb-1">${item.company}</p>
+                <p className="text-white/40 text-xs tracking-widest uppercase mb-2">${item.role}</p>
+                <p className="text-white/30 text-sm">${item.desc}</p>
+              </div>
+            `}
+          </div>
+        </>
+      `
+    }
+
+    function Career() {
+      return html`
+        <section id="career" className="py-32 px-6 md:px-16 lg:px-32">
+          <div className="max-w-5xl mx-auto">
+            <${FadeSection}>
+              <${SectionLabel}>Career Timeline</>
+              <h2 className="text-4xl md:text-5xl font-extralight mb-20" style=${{ letterSpacing: '-0.02em' }}>
+                경력의 <span className="gold-text">이정표</span>
+              </h2>
+            </>
+
+            <!-- Timeline -->
+            <div className="relative">
+              <!-- Vertical line -->
+              <div
+                className="absolute left-1/2 -translate-x-1/2 top-0 bottom-0 w-px"
+                style=${{ background: 'linear-gradient(to bottom, transparent, rgba(201,168,76,0.3), rgba(201,168,76,0.5), rgba(201,168,76,0.3), transparent)' }}
+              ></div>
+
+              <div className="space-y-12">
+                ${DATA.career.map((item, i) => html`
+                  <${CareerItem} key=${item.year} item=${item} index=${i} />
+                `)}
+              </div>
+            </div>
+          </div>
+        </section>
+      `
+    }
+
+    /* ─── Core Competencies ─────────────────────────────────── */
+    function Core() {
+      return html`
+        <section id="core" className="py-32 px-6 md:px-16 lg:px-32">
+          <div className="section-divider mb-32"></div>
+          <div className="max-w-6xl mx-auto">
+            <${FadeSection}>
+              <${SectionLabel}>Core Competencies</>
+              <h2 className="text-4xl md:text-5xl font-extralight mb-20" style=${{ letterSpacing: '-0.02em' }}>
+                핵심 <span className="gold-text">역량</span>
+              </h2>
+            </>
+
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              ${DATA.core.map((item, i) => html`
+                <${FadeSection} key=${item.label} delay=${i * 0.08}>
+                  <div className="competency-card rounded-2xl p-8 h-full cursor-default">
+                    <div className="text-2xl mb-4 gold-text">0${i+1}</div>
+                    <p className="text-white font-light text-lg mb-2">${item.label}</p>
+                    <p className="text-white/30 text-sm">${item.desc}</p>
+                  </div>
+                </>
+              `)}
+            </div>
+          </div>
+          <div className="section-divider mt-32"></div>
+        </section>
+      `
+    }
+
+    /* ─── Portfolio ─────────────────────────────────────────── */
+    function Portfolio() {
+      return html`
+        <section id="portfolio" className="py-32 px-6 md:px-16 lg:px-32">
+          <div className="max-w-6xl mx-auto">
+            <${FadeSection}>
+              <${SectionLabel}>Portfolio</>
+              <h2 className="text-4xl md:text-5xl font-extralight mb-20" style=${{ letterSpacing: '-0.02em' }}>
+                주요 <span className="gold-text">벤처</span>
+              </h2>
+            </>
+
+            <div className="grid md:grid-cols-2 gap-6">
+              ${DATA.portfolio.map((item, i) => html`
+                <${FadeSection} key=${item.company} delay=${i * 0.12}>
+                  <div className="portfolio-card rounded-2xl p-10 h-full">
+                    <div className="flex justify-between items-start mb-8">
+                      <span
+                        className="text-xs tracking-widest uppercase px-3 py-1 rounded-full"
+                        style=${{ color: 'var(--gold)', border: '1px solid rgba(201,168,76,0.3)' }}
+                      >
+                        ${item.category}
+                      </span>
+                      <span className="text-white/25 text-xs font-light">${item.period}</span>
+                    </div>
+
+                    <h3 className="text-xl font-light text-white mb-4" style=${{ letterSpacing: '-0.01em' }}>
+                      ${item.company}
+                    </h3>
+
+                    <p className="text-white/40 text-sm leading-relaxed">${item.summary}</p>
+
+                    <div
+                      className="mt-8 pt-6"
+                      style=${{ borderTop: '1px solid rgba(255,255,255,0.05)' }}
+                    >
+                      <span className="text-white/20 text-xs tracking-widest">VENTURE ${i + 1} / ${DATA.portfolio.length}</span>
+                    </div>
+                  </div>
+                </>
+              `)}
+            </div>
+          </div>
+        </section>
+      `
+    }
+
+    /* ─── Global ────────────────────────────────────────────── */
+    function Global() {
+      return html`
+        <section id="global" className="py-32 px-6 md:px-16 lg:px-32 overflow-hidden">
+          <div className="section-divider mb-32"></div>
+          <div className="max-w-6xl mx-auto">
+            <${FadeSection}>
+              <${SectionLabel}>Global Vision</>
+              <h2 className="text-4xl md:text-5xl font-extralight mb-8" style=${{ letterSpacing: '-0.02em' }}>
+                <span className="gold-text">글로벌</span> 시장으로
+              </h2>
+              <p className="text-white/40 text-lg font-light max-w-2xl leading-relaxed mb-20">
+                ${DATA.global.vision}
+              </p>
+            </>
+
+            <!-- Market tags -->
+            <${FadeSection} delay=${0.2}>
+              <div className="flex flex-wrap gap-3 mb-24">
+                ${DATA.global.markets.map((m, i) => html`
+                  <${motion.span}
+                    key=${m}
+                    className="px-6 py-3 rounded-full text-sm font-light"
+                    style=${{ border: '1px solid rgba(201,168,76,0.25)', color: 'rgba(255,255,255,0.6)' }}
+                    whileHover=${{ borderColor: 'rgba(201,168,76,0.7)', color: '#fff', scale: 1.04 }}
+                    initial=${{ opacity: 0, scale: 0.9 }}
+                    animate=${{ opacity: 1, scale: 1 }}
+                    transition=${{ delay: i * 0.07 + 0.4 }}
+                  >
+                    ${m}
+                  </>
+                `)}
+              </div>
+            </>
+
+            <!-- Large vision quote -->
+            <${FadeSection} delay=${0.4}>
+              <div className="relative py-16 px-8 rounded-3xl text-center overflow-hidden"
+                style=${{ border: '1px solid rgba(201,168,76,0.12)', background: 'radial-gradient(ellipse 80% 60% at 50% 0%, rgba(201,168,76,0.06) 0%, transparent 70%)' }}
+              >
+                <p className="text-2xl md:text-4xl font-extralight leading-relaxed" style=${{ letterSpacing: '-0.02em' }}>
+                  "아름다움의 미래는<br/>
+                  <span className="gold-text">개인화된 AI 경험</span>에 있습니다."
+                </p>
+                <div className="mt-8 text-white/30 text-sm tracking-widest">— 조세원, CEO HOFN</div>
+              </div>
+            </>
+          </div>
+        </section>
+      `
+    }
+
+    /* ─── Footer ────────────────────────────────────────────── */
+    function Footer() {
+      return html`
+        <footer className="py-16 px-6 md:px-16 lg:px-32">
+          <div className="section-divider mb-16"></div>
+          <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
+            <div>
+              <p className="gold-text text-lg font-light tracking-[0.4em] mb-2">HOFN</p>
+              <p className="text-white/25 text-sm">파인핸스 · 조세원 CEO</p>
+            </div>
+            <div className="text-center">
+              <p className="text-white/15 text-xs tracking-widest">
+                AI BEAUTY TECH · GLOBAL PLATFORM
+              </p>
+            </div>
+            <div className="text-right">
+              <p className="text-white/25 text-xs">© 2024 HOFN / 파인핸스</p>
+              <p className="text-white/15 text-xs mt-1">All Rights Reserved</p>
+            </div>
+          </div>
+        </footer>
+      `
+    }
+
+    /* ─── App ───────────────────────────────────────────────── */
+    function App() {
+      return html`
+        <div>
+          <${Nav} />
+          <${Hero} />
+          <${About} />
+          <${Career} />
+          <${Core} />
+          <${Portfolio} />
+          <${Global} />
+          <${Footer} />
+        </div>
+      `
+    }
+
+    /* ─── Mount ─────────────────────────────────────────────── */
+    createRoot(document.getElementById('root')).render(html`<${App} />`)
+  </script>
+</body>
+</html>
